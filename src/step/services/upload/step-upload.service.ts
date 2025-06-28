@@ -22,8 +22,7 @@ export class Step_UploadService {
   private async uploadStepImage(stepImages: Express.Multer.File[]) {
     const uploadedImageUrl = await Promise.all(
       stepImages.map(async (image) => {
-        const uploadedFileName = uuid() + '-' + image.originalname;
-        const filePath = `step/${uploadedFileName}`;
+        const filePath = `step/${uuid()}`;
         const { error: uploadError } = await this.supabaseStorage.upload(
           filePath,
           image.buffer,
