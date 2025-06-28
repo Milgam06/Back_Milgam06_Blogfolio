@@ -1,4 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+
 import { Step_Upload_InputDto, Step_Upload_OutputDto } from 'src/dto';
 import { PrismaService } from 'src/prisma';
 import { SupabaseService } from 'src/supabase';
@@ -20,7 +22,8 @@ export class Step_UploadService {
   private async uploadStepImage(stepImages: Express.Multer.File[]) {
     const uploadedImageUrl = await Promise.all(
       stepImages.map(async (image) => {
-        const filePath = `step/${image.originalname}`;
+        const uploadedFileName = uuid() + '-' + image.originalname;
+        const filePath = `step/${uploadedFileName}`;
         const { error: uploadError } = await this.supabaseStorage.upload(
           filePath,
           image.buffer,
@@ -30,7 +33,6 @@ export class Step_UploadService {
         const {
           data: { publicUrl },
         } = this.supabaseStorage.getPublicUrl(filePath);
-        console.log('Public URL:', publicUrl);
 
         if (uploadError) {
           throw new Error('Failed to upload image: ' + uploadError.message);
