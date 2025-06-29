@@ -29,13 +29,13 @@ export class Step_UploadService {
           { contentType: image.mimetype },
         );
 
-        const {
-          data: { publicUrl },
-        } = this.supabaseStorage.getPublicUrl(filePath);
-
         if (uploadError) {
           throw new Error('Failed to upload image: ' + uploadError.message);
         }
+
+        const {
+          data: { publicUrl },
+        } = this.supabaseStorage.getPublicUrl(filePath);
 
         return publicUrl;
       }),
