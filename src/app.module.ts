@@ -9,12 +9,12 @@ import { StepModule } from './step';
 
 @Module({
   imports: [
-    StepModule,
-    PrismaModule,
-    SupabaseModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    StepModule,
+    PrismaModule,
+    SupabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
