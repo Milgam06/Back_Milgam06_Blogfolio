@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 import { Step_Upload_InputDto, Step_Upload_OutputDto } from 'src/dto';
@@ -30,7 +30,10 @@ export class Step_UploadService {
         );
 
         if (uploadError) {
-          throw new Error('Failed to upload image: ' + uploadError.message);
+          throw new HttpException(
+            `Failed to upload image: ${uploadError.message}`,
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
         const {
