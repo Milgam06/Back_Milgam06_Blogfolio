@@ -47,9 +47,8 @@ export class Step_UploadService {
     input,
     stepImages,
   }: IStep_Upload_Execute): Promise<Step_Upload_OutputDto> {
-    console.log('Received step upload input:', input);
     const { title, content } = input;
-    console.log('Received step upload input:', input);
+
     const uploadedImageUrl = await this.uploadStepImage(stepImages);
 
     await this.prismaService.step.create({
