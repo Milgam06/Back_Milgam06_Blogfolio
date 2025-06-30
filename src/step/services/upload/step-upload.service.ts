@@ -20,7 +20,7 @@ export class Step_UploadService {
   private supabaseStorage = this.supabaseService.storage.from('images');
 
   private async uploadStepImage(stepImages: Express.Multer.File[]) {
-    const uploadedImageUrl = await Promise.all(
+    const uploadedImageData = await Promise.all(
       stepImages.map(async (image) => {
         const filePath = `step/${uuid()}`;
         const { error: uploadError } = await this.supabaseStorage.upload(
@@ -40,10 +40,22 @@ export class Step_UploadService {
           data: { publicUrl },
         } = this.supabaseStorage.getPublicUrl(filePath);
 
-        return publicUrl;
+        return {
+          publicUrl,
+          filePath,
+        };
       }),
     );
-    return uploadedImageUrl;
+
+    const stepImageUrl = uploadedImageData.map((data) => {
+      return data.publicUrl;
+    });
+
+    const stepImagePath = uploadedImageData.map((data) => {
+      return data.filePath;
+    });
+
+    return { stepImageUrl, stepImagePath };
   }
 
   async execute({
@@ -52,13 +64,15 @@ export class Step_UploadService {
   }: IStep_Upload_Execute): Promise<Step_Upload_OutputDto> {
     const { title, content } = input;
 
-    const uploadedImageUrl = await this.uploadStepImage(stepImages);
+    const { stepImagePath, stepImageUrl } =
+      await this.uploadStepImage(stepImages);
 
     await this.prismaService.step.create({
       data: {
         title,
         content,
-        stepImageUrl: uploadedImageUrl,
+        stepImageUrl,
+        stepImagePath,
       },
     });
 

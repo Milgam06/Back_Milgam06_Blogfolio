@@ -25,5 +25,6 @@ model Step {
   id        String   @id @default(cuid())
   title     String
   content   String
-  stepImageUrl    String[]
+  stepImageUrl   String[] 
+  stepImagePath  String[]
 }
