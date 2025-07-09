@@ -17,17 +17,13 @@ export class Step_UploadService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  private supabaseStorage = this.supabaseService.storage.from('images');
-
   private async uploadStepImage(stepImages: Express.Multer.File[]) {
     const uploadedImageData = await Promise.all(
       stepImages.map(async (image) => {
         const filePath = `step/${uuid()}`;
-        const { error: uploadError } = await this.supabaseStorage.upload(
-          filePath,
-          image.buffer,
-          { contentType: image.mimetype },
-        );
+        const { error: uploadError } = await this.supabaseService.storage
+          .from('images')
+          .upload(filePath, image.buffer, { contentType: image.mimetype });
 
         if (uploadError) {
           throw new HttpException(
@@ -38,7 +34,7 @@ export class Step_UploadService {
 
         const {
           data: { publicUrl },
-        } = this.supabaseStorage.getPublicUrl(filePath);
+        } = this.supabaseService.storage.from('images').getPublicUrl(filePath);
 
         return {
           publicUrl,
