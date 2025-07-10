@@ -30,7 +30,7 @@ export class Step_RemoveService {
   async execute({
     stepId,
   }: Step_Remove_InputDto): Promise<Step_Remove_OutputDto> {
-    const { stepImagePath } = await this.prismaService.step.findFirst({
+    const step = await this.prismaService.step.findFirst({
       where: {
         id: stepId,
       },
@@ -38,6 +38,26 @@ export class Step_RemoveService {
         stepImagePath: true,
       },
     });
+
+    const hasNotStepData = !step;
+    if (hasNotStepData) {
+      throw new HttpException(
+        `There is no step with id: ${stepId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const { stepImagePath } = step;
+
+    const isStepImageEmpty = stepImagePath.length === 0;
+    const stepError = hasNotStepData || isStepImageEmpty;
+    if (stepError) {
+      throw new HttpException(
+        'No step images found to delete',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     await this.deleteStepImage({ stepImagePath });
 
     await this.prismaService.step.delete({
