@@ -19,8 +19,10 @@ export class Step_UploadResolver {
     @Body() input: Step_Upload_InputDto,
     @UploadedFiles() stepImages: Express.Multer.File[],
   ): Promise<Step_Upload_OutputDto> {
+    const { title, content } = input;
     return this.stepUploadService.execute({
-      input,
+      title,
+      content,
       stepImages,
     });
   }

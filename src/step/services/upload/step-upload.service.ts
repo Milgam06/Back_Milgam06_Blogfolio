@@ -5,8 +5,7 @@ import { Step_Upload_InputDto, Step_Upload_OutputDto } from 'src/dto';
 import { PrismaService } from 'src/prisma';
 import { SupabaseService } from 'src/supabase';
 
-type IStep_Upload_Execute = {
-  input: Step_Upload_InputDto;
+type IStep_Upload_Execute = Step_Upload_InputDto & {
   stepImages: Express.Multer.File[];
 };
 
@@ -17,17 +16,13 @@ export class Step_UploadService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  private supabaseStorage = this.supabaseService.storage.from('images');
-
   private async uploadStepImage(stepImages: Express.Multer.File[]) {
-    const uploadedImageUrl = await Promise.all(
+    const uploadedImageData = await Promise.all(
       stepImages.map(async (image) => {
         const filePath = `step/${uuid()}`;
-        const { error: uploadError } = await this.supabaseStorage.upload(
-          filePath,
-          image.buffer,
-          { contentType: image.mimetype },
-        );
+        const { error: uploadError } = await this.supabaseService.storage
+          .from('images')
+          .upload(filePath, image.buffer, { contentType: image.mimetype });
 
         if (uploadError) {
           throw new HttpException(
@@ -38,27 +33,40 @@ export class Step_UploadService {
 
         const {
           data: { publicUrl },
-        } = this.supabaseStorage.getPublicUrl(filePath);
+        } = this.supabaseService.storage.from('images').getPublicUrl(filePath);
 
-        return publicUrl;
+        return {
+          publicUrl,
+          filePath,
+        };
       }),
     );
-    return uploadedImageUrl;
+
+    const stepImageUrl = uploadedImageData.map((data) => {
+      return data.publicUrl;
+    });
+
+    const stepImagePath = uploadedImageData.map((data) => {
+      return data.filePath;
+    });
+
+    return { stepImageUrl, stepImagePath };
   }
 
   async execute({
-    input,
+    title,
+    content,
     stepImages,
   }: IStep_Upload_Execute): Promise<Step_Upload_OutputDto> {
-    const { title, content } = input;
-
-    const uploadedImageUrl = await this.uploadStepImage(stepImages);
+    const { stepImagePath, stepImageUrl } =
+      await this.uploadStepImage(stepImages);
 
     await this.prismaService.step.create({
       data: {
         title,
         content,
-        stepImageUrl: uploadedImageUrl,
+        stepImageUrl,
+        stepImagePath,
       },
     });
 
