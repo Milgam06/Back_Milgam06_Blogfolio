@@ -5,8 +5,7 @@ import { Step_Upload_InputDto, Step_Upload_OutputDto } from 'src/dto';
 import { PrismaService } from 'src/prisma';
 import { SupabaseService } from 'src/supabase';
 
-type IStep_Upload_Execute = {
-  input: Step_Upload_InputDto;
+type IStep_Upload_Execute = Step_Upload_InputDto & {
   stepImages: Express.Multer.File[];
 };
 
@@ -55,11 +54,10 @@ export class Step_UploadService {
   }
 
   async execute({
-    input,
+    title,
+    content,
     stepImages,
   }: IStep_Upload_Execute): Promise<Step_Upload_OutputDto> {
-    const { title, content } = input;
-
     const { stepImagePath, stepImageUrl } =
       await this.uploadStepImage(stepImages);
 
