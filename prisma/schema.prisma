@@ -14,6 +14,50 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum ETechStack {
+  Typescript
+  Javascript
+  Python
+  React
+  ReactNative
+  NextJS
+  Vite
+  NodeJS
+  NestJS
+  Express
+  FastAPI
+  Axios
+  Zustand
+  Recoil
+  ReactQuery
+  Prisma
+  ESLint
+  Prettier
+  PostgreSQL
+  MySQL
+  Supabase
+  GraphQL
+  RestApi
+  Mantine
+  StyledComponents
+  FramerMotion
+  Reanimated
+  Fontawesome
+  Notion
+  GitHub
+  OpenAI
+  Docker
+  AWS
+  Oracle
+  Firebase
+  GoogleAnalytics
+  Storybook
+  Figma
+  Postman
+  Cloudflare
+  Copilot
+  Vercel
+}
 model Post {
   id        String   @id @default(cuid())
   title     String
@@ -25,6 +69,7 @@ model Step {
   id        String   @id @default(cuid())
   title     String
   content   String
+  usedTechStack  ETechStack[]  
   stepImageUrl   String[] 
   stepImagePath  String[]
 }
